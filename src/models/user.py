@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from src.database import Base
 
 if TYPE_CHECKING:
-    from src.models import Place, Tour
+    from src.models import Place, Tour, Reservation
 
 
 class User(Base):
@@ -17,5 +17,4 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     is_admin: Mapped[bool] = mapped_column(default=False)
 
-    places: Mapped[list["Place"]] = relationship("Place", back_populates="author")
-    tours: Mapped[list["Tour"]] = relationship("Tour", back_populates="author")
+    reservations: Mapped[list["Reservation"]] = relationship("Reservation", back_populates="user")

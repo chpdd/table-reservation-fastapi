@@ -1,21 +1,50 @@
 import datetime as dt
+from pydantic import Field, field_validator
+from typing import Annotated
 
 from src.config import BaseSchema
 
 
-class CreateReservationSchema(BaseSchema):
-    start_date: dt.datetime
-    end_date: dt.datetime
+class DTCreateReservationSchema(BaseSchema):
+    date: dt.date
+    start_time: dt.time
+    duration_in_minutes: Annotated[int, Field(ge=30, le=240)]
     food_table_id: int
 
+    @field_validator("start_time", mode="before")
+    def parse_time(cls, v):
+        if isinstance(v, str):
+            try:
+                return dt.datetime.strptime(v, "%H:%M").time()
+            except ValueError:
+                raise ValueError("Time should be of the form Hours:Minutes")
+        return v
 
-class UpdateReservationSchema(BaseSchema):
-    start_date: dt.datetime | None
-    end_date: dt.datetime | None
-    food_table_id: int | None
-    is_active: bool | None
+
+class CreateReservationSchema(BaseSchema):
+    start_datetime: dt.datetime
+    duration_in_minutes: Annotated[int, Field(ge=30, le=240)]
+    food_table_id: int
+
+    @classmethod
+    def convert_dt_schema(cls, dt_reservation_schema: DTCreateReservationSchema):
+        start_datetime = dt.datetime.combine(date=dt_reservation_schema.date,
+                                             time=dt_reservation_schema.start_time)
+        reservation_schema = CreateReservationSchema(
+            **dt_reservation_schema.model_dump(exclude=("start_time", "date")), start_datetime=start_datetime)
+        return reservation_schema
+
+    @field_validator("start_datetime", mode="before")
+    def parse_datetime(cls, v):
+        if isinstance(v, str):
+            try:
+                return dt.datetime.strptime(v, "%d.%m.%Y %H:%M")
+            except ValueError:
+                raise ValueError("Time should be of the form day.month.year-Hours:Minutes")
+        return v
 
 
-class ReservationSchema(UpdateReservationSchema):
+class ReservationSchema(CreateReservationSchema):
     id: int
     user_id: int
+    end_datetime: dt.datetime

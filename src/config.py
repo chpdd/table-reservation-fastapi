@@ -1,6 +1,8 @@
 from pydantic_settings import SettingsConfigDict, BaseSettings
-from pydantic import BaseModel
+from pydantic import BaseModel, GetCoreSchemaHandler
+from pydantic_core import core_schema
 from pathlib import Path
+import datetime as dt
 
 
 class Settings(BaseSettings):
@@ -26,5 +28,8 @@ settings = Settings()
 
 
 class BaseSchema(BaseModel):
+    def __repr__(self):
+        return f"{self.__name__}({self.__dict__})"
+
     class Config:
         from_attributes = True

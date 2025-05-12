@@ -5,7 +5,7 @@ from typing import Annotated
 
 from src.config import settings
 
-engine = create_async_engine(settings.db_url)
+engine = create_async_engine(settings.db_url, echo=True)
 
 session_factory = async_sessionmaker(engine)
 
@@ -16,7 +16,7 @@ async def get_db():
 
 
 class Base(DeclarativeBase):
-    def __str__(self):
+    def __repr__(self):
         return f"{self.__name__}({self.__dict__})"
 
 

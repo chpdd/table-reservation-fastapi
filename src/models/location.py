@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from src.database import Base
 
 while TYPE_CHECKING:
-    pass
+    from src.models import FoodPlace
 
 
 class Location(Base):
@@ -14,6 +14,8 @@ class Location(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(nullable=False, unique=True)
+
+    food_places: Mapped[list["FoodPlace"]] = relationship("FoodPlace", back_populates="location")
 
 
 
