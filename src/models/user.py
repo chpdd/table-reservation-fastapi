@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from src.database import Base
 
 if TYPE_CHECKING:
-    from src.models import Place, Tour, Reservation
+    from src.models import Reservation
 
 
 class User(Base):

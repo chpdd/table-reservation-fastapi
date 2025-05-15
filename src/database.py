@@ -5,7 +5,7 @@ from typing import Annotated
 
 from src.config import settings
 
-engine = create_async_engine(settings.db_url, echo=True)
+engine = create_async_engine(settings.db_url)
 
 session_factory = async_sessionmaker(engine)
 

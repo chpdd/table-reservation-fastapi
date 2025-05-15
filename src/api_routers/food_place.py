@@ -29,11 +29,11 @@ async def retrieve_food_place(food_place_id: int, session: db_dep):
 @router.post("")
 async def create_food_place(food_place_schema: CreateFoodPlaceSchema, session: db_dep,
                             is_authenticated: only_authenticated_dep):
-    location = session.get(Location, food_place_schema.location_id)
+    location = await session.get(Location, food_place_schema.location_id)
     if location is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Location with this id not found")
     check_request = select(FoodPlace).where(
-        FoodPlace.name == food_place_schema.name and FoodPlace.location_id == food_place_schema.location_id)
+        FoodPlace.name == food_place_schema.name, FoodPlace.location_id == food_place_schema.location_id)
     if (await session.execute(check_request)).scalar_one_or_none():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="FoodPlace with this name and location_id already exists")
@@ -44,17 +44,18 @@ async def create_food_place(food_place_schema: CreateFoodPlaceSchema, session: d
     return FoodPlaceSchema.model_validate(food_place)
 
 
-@router.patch("/{food_place_id}")
+@router.put("/{food_place_id}")
 async def update_food_place(food_place_id: int, food_place_schema: UpdateFoodPlaceSchema, session: db_dep,
                             is_authenticated: only_authenticated_dep):
     food_place = await session.get(FoodPlace, food_place_id)
     if food_place is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="FoodPlace not found")
     check_request = select(FoodPlace).where(
-        FoodPlace.name == food_place_schema.name and FoodPlace.location_id == food_place.location_id)
+        FoodPlace.name == food_place_schema.name, FoodPlace.location_id == food_place_schema.location_id,
+        FoodPlace.address == food_place_schema.address)
     if (await session.execute(check_request)).scalar_one_or_none():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="FoodPlace with this name and location_id already exists")
+                            detail="FoodPlace with this name, location_id and address already exists")
     for attr, value in food_place_schema.model_dump().items():
         setattr(food_place, attr, value)
     await session.commit()

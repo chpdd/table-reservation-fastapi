@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import ForeignKey, UniqueConstraint, CheckConstraint, select, and_, or_
+from sqlalchemy import ForeignKey, UniqueConstraint, CheckConstraint, select, not_, or_
 import datetime as dt
 
 from typing import TYPE_CHECKING
@@ -48,11 +48,8 @@ class Reservation(Base):
     async def time_is_free_sql(self, session: AsyncSession) -> bool:
         stmt = select(Reservation).where(
             Reservation.food_table_id == self.food_table_id,
-            or_(
-                and_(Reservation.start_datetime <= self.start_datetime,
-                     Reservation.start_datetime > self.start_datetime),
-                and_(Reservation.start_datetime < self.end_datetime, Reservation.end_datetime >= self.end_datetime),
-                and_(Reservation.start_datetime >= self.start_datetime, Reservation.end_datetime <= self.end_datetime),
+            not_(
+                or_(self.start_datetime >= Reservation.end_datetime, Reservation.start_datetime >= self.end_datetime),
             )
         )
         reservation = await session.execute(stmt)
@@ -73,18 +70,3 @@ class Reservation(Base):
         open_datetime = dt.datetime.combine(date=open_date, time=open_time)
         close_datetime = dt.datetime.combine(date=close_date, time=close_time)
         return open_datetime <= self.start_datetime and self.end_datetime <= close_datetime
-
-
-if __name__ == "__main__":
-    from src.schemas.reservation import CreateReservationSchema, DTCreateReservationSchema
-
-    data_dict = {
-        "date": "2025-05-12",
-        "start_time": "00:00",
-        "duration_in_minutes": 90,
-        "food_table_id": 1
-    }
-    reservation = DTCreateReservationSchema.model_validate(data_dict)
-    reservation = CreateReservationSchema.convert_dt_schema(reservation)
-    print(reservation)
-

@@ -13,7 +13,7 @@ while TYPE_CHECKING:
 class FoodPlace(Base):
     __tablename__ = "food_places"
     __table_args__ = (
-        UniqueConstraint("name", "location_id", name="unique_name_per_location_id"),
+        UniqueConstraint("name", "location_id", "address", name="unique_name_per_location_id_and_address"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
