@@ -1,6 +1,6 @@
 import datetime as dt
-from pydantic import field_validator, Field
-from typing import Annotated
+
+from pydantic import field_validator
 
 from src.config import BaseSchema
 

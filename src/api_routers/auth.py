@@ -1,12 +1,13 @@
+from typing import Annotated
+
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
-from typing import Annotated
 
-from src.schemas.auth import AuthSchema
+from src import security
 from src.database import db_dep
 from src.models import User
-from src import security
+from src.schemas.auth import AuthSchema
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 

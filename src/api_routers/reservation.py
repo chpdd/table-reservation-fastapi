@@ -1,12 +1,10 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
-import datetime as dt
 
 from src.database import db_dep
-from src.security import actual_user_id_dep, only_admin_dep
 from src.models import Reservation, FoodTable
 from src.schemas.reservation import ReservationSchema, CreateReservationSchema, DTCreateReservationSchema
+from src.security import actual_user_id_dep, only_admin_dep
 
 router = APIRouter(prefix="/reservations", tags=["Reservations"])
 
@@ -28,7 +26,7 @@ async def list_all_reservations(session: db_dep, user_id: only_admin_dep) -> lis
 
 
 @router.get("/{reservation_id}")
-async def retrieve_reservation(reservation_id: int, session: db_dep, user_id: actual_user_id_dep) -> ReservationSchema:
+async def get_reservation(reservation_id: int, session: db_dep, user_id: actual_user_id_dep) -> ReservationSchema:
     reservation = await session.get(Reservation, reservation_id)
     if reservation is None or reservation.user_id != user_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -62,7 +60,7 @@ async def create_reservation_date_and_time(dt_reservation_schema: DTCreateReserv
 
 
 @router.delete("/{reservation_id}")
-async def destroy_reservation(reservation_id: int, session: db_dep, user_id: actual_user_id_dep):
+async def delete_reservation(reservation_id: int, session: db_dep, user_id: actual_user_id_dep):
     reservation = await session.get(Reservation, reservation_id)
     if reservation is None or reservation.user_id != user_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reservation not found")

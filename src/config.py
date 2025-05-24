@@ -1,8 +1,7 @@
-from pydantic_settings import SettingsConfigDict, BaseSettings
-from pydantic import BaseModel, GetCoreSchemaHandler
-from pydantic_core import core_schema
 from pathlib import Path
-import datetime as dt
+
+from pydantic import BaseModel
+from pydantic_settings import SettingsConfigDict, BaseSettings
 
 
 class Settings(BaseSettings):

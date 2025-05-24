@@ -1,11 +1,11 @@
-from sqlalchemy.orm import Mapped, mapped_column, relationship, selectinload
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import ForeignKey, UniqueConstraint, CheckConstraint, select, not_, or_
 import datetime as dt
-
 from typing import TYPE_CHECKING
 
-from src.database import Base, db_dep
+from sqlalchemy import ForeignKey, CheckConstraint, select, not_, or_
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Mapped, mapped_column, relationship, selectinload
+
+from src.database import Base
 
 while TYPE_CHECKING:
     from src.models import FoodTable, User
@@ -20,8 +20,8 @@ class Reservation(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     start_datetime: Mapped[dt.datetime] = mapped_column(nullable=False)
     duration_in_minutes: Mapped[int] = mapped_column(nullable=False)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
-    food_table_id: Mapped[int] = mapped_column(ForeignKey("food_tables.id", ondelete="CASCADE"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    food_table_id: Mapped[int] = mapped_column(ForeignKey("food_tables.id", ondelete="CASCADE"), nullable=False)
 
     user: Mapped["User"] = relationship("User", back_populates="reservations")
     food_table: Mapped["FoodTable"] = relationship("FoodTable", back_populates="reservations")

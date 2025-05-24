@@ -1,13 +1,13 @@
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey, UniqueConstraint, CheckConstraint
-
-from typing import TYPE_CHECKING
 import datetime as dt
+from typing import TYPE_CHECKING
+
+from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
 
 while TYPE_CHECKING:
-    from src.models import Location, FoodTable
+    from src.models import Location, FoodTable, FoodBasket, MenuItem
 
 
 class FoodPlace(Base):
@@ -17,12 +17,17 @@ class FoodPlace(Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column()
-    address: Mapped[str] = mapped_column()
+    name: Mapped[str] = mapped_column(nullable=False)
+    address: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=True)
-    open_time: Mapped[dt.time] = mapped_column()
-    close_time: Mapped[dt.time] = mapped_column()
-    location_id: Mapped[int] = mapped_column(ForeignKey("locations.id", ondelete="CASCADE"))
-
+    open_time: Mapped[dt.time] = mapped_column(nullable=False)
+    close_time: Mapped[dt.time] = mapped_column(nullable=False)
+    location_id: Mapped[int] = mapped_column(ForeignKey("locations.id", ondelete="CASCADE"), nullable=False)
+    # Many To One
     location: Mapped["Location"] = relationship("Location", back_populates="food_places")
+    # One To Many
     food_tables: Mapped[list["FoodTable"]] = relationship("FoodTable", back_populates="food_place")
+    food_baskets: Mapped[list["FoodBasket"]] = relationship("FoodBasket", back_populates="food_place",
+                                                       cascade="all, delete-orphan", passive_deletes=True)
+    menu_items: Mapped[list["MenuItem"]] = relationship("MenuItem", back_populates="food_place",
+                                                        cascade="all, delete-orphan", passive_deletes=True)

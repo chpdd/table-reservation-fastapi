@@ -1,17 +1,16 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
 
 from src.database import db_dep
-from src.security import only_admin_dep
 from src.models import Location
 from src.schemas.location import LocationSchema, CreateLocationSchema
+from src.security import only_admin_dep, actual_user_id_dep
 
 router = APIRouter(prefix="/locations", tags=["Locations"])
 
 
 @router.get("")
-async def list_locations(session: db_dep):
+async def list_locations(session: db_dep, user_id: actual_user_id_dep):
     request = select(Location)
     response = await session.execute(request)
     locations = [LocationSchema.model_validate(location) for location in response.scalars().all()]
@@ -19,7 +18,7 @@ async def list_locations(session: db_dep):
 
 
 @router.get("/{location_id}")
-async def retrieve_location(location_id: int, session: db_dep):
+async def get_location(location_id: int, session: db_dep, user_id: actual_user_id_dep):
     location = await session.get(Location, location_id)
     if location is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -53,7 +52,7 @@ async def update_location(location_id: int, location_schema: CreateLocationSchem
 
 
 @router.delete("/{location_id}")
-async def destroy_location(location_id: int, session: db_dep, user_id: only_admin_dep):
+async def delete_location(location_id: int, session: db_dep, user_id: only_admin_dep):
     location = await session.get(Location, location_id)
     if location is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Location not found")

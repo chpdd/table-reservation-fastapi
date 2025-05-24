@@ -1,16 +1,15 @@
-import jwt
 import datetime as dt
-import fastapi.security
+from typing import Annotated
 
+import fastapi.security
+import jwt
+from fastapi import Depends, HTTPException, status
 from passlib.context import CryptContext
 from pydantic import Field
-from fastapi import Depends, HTTPException, status
-from typing import Annotated
-from sqlalchemy import select
 
 from src.config import BaseSchema, settings
-from src.models import User
 from src.database import db_dep
+from src.models import User
 
 oauth2_scheme = fastapi.security.OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 

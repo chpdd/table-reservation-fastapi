@@ -1,11 +1,10 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
 
 from src.database import db_dep
-from src.security import actual_user_id_dep, only_authenticated_dep
 from src.models import FoodPlace, Location
 from src.schemas.food_place import FoodPlaceSchema, CreateFoodPlaceSchema, UpdateFoodPlaceSchema
+from src.security import only_authenticated_dep
 
 router = APIRouter(prefix="/food_places", tags=["FoodPlaces"])
 
@@ -19,7 +18,7 @@ async def list_food_places(session: db_dep):
 
 
 @router.get("/{food_place_id}")
-async def retrieve_food_place(food_place_id: int, session: db_dep):
+async def get_food_place(food_place_id: int, session: db_dep):
     food_place = await session.get(FoodPlace, food_place_id)
     if food_place is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -64,7 +63,7 @@ async def update_food_place(food_place_id: int, food_place_schema: UpdateFoodPla
 
 
 @router.delete("/{food_place_id}")
-async def destroy_food_place(food_place_id: int, session: db_dep, is_authenticated: only_authenticated_dep):
+async def delete_food_place(food_place_id: int, session: db_dep, is_authenticated: only_authenticated_dep):
     food_place = await session.get(FoodPlace, food_place_id)
     if food_place is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="FoodPlace not found")

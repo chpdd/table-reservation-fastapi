@@ -1,11 +1,10 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
 
 from src.database import db_dep
-from src.security import actual_user_id_dep, only_authenticated_dep
 from src.models import FoodTable, FoodPlace
 from src.schemas.food_table import FoodTableSchema, CreateFoodTableSchema, UpdateFoodTableSchema
+from src.security import only_authenticated_dep
 
 router = APIRouter(prefix="/food_tables", tags=["FoodTables"])
 
@@ -19,7 +18,7 @@ async def list_food_tables(session: db_dep):
 
 
 @router.get("/{food_table_id}")
-async def retrieve_food_table(food_table_id: int, session: db_dep):
+async def get_food_table(food_table_id: int, session: db_dep):
     food_table = await session.get(FoodTable, food_table_id)
     if food_table is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -63,7 +62,7 @@ async def update_food_table(food_table_id: int, food_table_schema: UpdateFoodTab
 
 
 @router.delete("/{food_table_id}")
-async def destroy_food_table(food_table_id: int, session: db_dep, is_authenticated: only_authenticated_dep):
+async def delete_food_table(food_table_id: int, session: db_dep, is_authenticated: only_authenticated_dep):
     food_table = await session.get(FoodTable, food_table_id)
     if food_table is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="FoodTable not found")

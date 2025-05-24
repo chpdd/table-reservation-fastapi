@@ -2,9 +2,9 @@ from fastapi import APIRouter
 from sqlalchemy import select
 
 from src.database import db_dep
-from src.security import actual_user_id_dep, only_admin_dep
 from src.models import User
 from src.schemas.user import UserSchema, AdminSchema
+from src.security import actual_user_id_dep, only_admin_dep
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
