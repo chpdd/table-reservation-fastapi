@@ -13,7 +13,7 @@ class BasketItem(Base):
     __tablename__ = "basket_items"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    item_quantity: Mapped[int] = mapped_column(nullable=False)
+    item_quantity: Mapped[int] = mapped_column(default=1, nullable=False)
     menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_items.id", ondelete="CASCADE"), nullable=False)
     food_basket_id: Mapped[int] = mapped_column(ForeignKey("food_baskets.id", ondelete="CASCADE"), nullable=False,
                                                 index=True)
